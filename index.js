@@ -65,7 +65,7 @@ async function convertTextToSpeech(req, res) {
     await writeFile(fileName, response.audioContent, 'binary');
     console.log('Audio saved to file: ' + fileName);
 }
-
-app.listen(5000, function () {
-    console.log("Server is listening on Port 5000")
+const PORT = process.env.PORT || 80
+app.listen(PORT, function () {
+    console.log("Server is listening ${PORT}")
 })
