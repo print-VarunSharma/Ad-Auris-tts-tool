@@ -36,12 +36,12 @@ app.get('/', (req, res) => {
 // TTS Function View
 app.post('/convertText', (req, res) => {
     convertTextToSpeech(req, res);
-    window.open("/fileName");
 })
 
 
 async function convertTextToSpeech(req, res) {
     // Get language code
+    try {
     const voiceSelected = req.body.voiceSelect;
     console.log(voiceSelected)
 
@@ -63,13 +63,22 @@ async function convertTextToSpeech(req, res) {
 
     // Performs the text-to-speech request
     const [response] = await client.synthesizeSpeech(request);
-    const writeFile = file.save(fs.writeFile);
-    await writeFile(fileName, response.audioContent, 'binary');
-    console.log('Audio saved to file: ' + fileName);
+    const writeFile = util.promisify(fs.writeFile);
+    return await writeFile(fileName, response.audioContent, 'binary')
+    .then(() => {
+        console.log('Audio saved to file: ' + fileName);
+        return;
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+}// close try
+catch (error) {
+    console.error(error);
+  } // close catch
 }
-
 
 const PORT = process.env.PORT || 80
 app.listen(PORT, function () {
     console.log("Server is listening ${PORT}")
-})
+});
