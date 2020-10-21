@@ -63,11 +63,11 @@ async function convertTextToSpeech(req, res) {
 
     // Performs the text-to-speech request
     const [response] = await client.synthesizeSpeech(request);
-    const writeFile = util.promisify(fs.writeFile);
-    res.download();
+    const writeFile = file.save(fs.writeFile);
     await writeFile(fileName, response.audioContent, 'binary');
     console.log('Audio saved to file: ' + fileName);
 }
+
 
 const PORT = process.env.PORT || 80
 app.listen(PORT, function () {
