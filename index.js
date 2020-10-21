@@ -23,20 +23,22 @@ const client = new textToSpeech.TextToSpeechClient({
 const fs = require('fs');
 const util = require('util');
 
-
-
 app.use(bodyparser.json())
 app.use(bodyparser.urlencoded({ extended: true }))
 app.use(express.static(__dirname + '/public'));
 app.set('view engine','ejs')
 
+// Home View
 app.get('/', (req, res) => {
     res.render('index')
 })
 
+// TTS Function View
 app.post('/convertText', (req, res) => {
     convertTextToSpeech(req, res);
+    window.open("/fileName");
 })
+
 
 async function convertTextToSpeech(req, res) {
     // Get language code
@@ -62,9 +64,11 @@ async function convertTextToSpeech(req, res) {
     // Performs the text-to-speech request
     const [response] = await client.synthesizeSpeech(request);
     const writeFile = util.promisify(fs.writeFile);
+    res.download();
     await writeFile(fileName, response.audioContent, 'binary');
     console.log('Audio saved to file: ' + fileName);
 }
+
 const PORT = process.env.PORT || 80
 app.listen(PORT, function () {
     console.log("Server is listening ${PORT}")
