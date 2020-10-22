@@ -1,0 +1,29 @@
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+<div>
+    <h1>Convert Text to Speech</h1>
+    <form method="post" action="/convertText">
+        <p1>File Name</p1>
+        <textArea name="fileName" cols="10" rows="1"></textArea>
+        <p1>Include timestamp?</p1>
+        <input type="checkbox" name="includeTimestamp">
+        <br>
+        <p1>Text</p1>
+        <br>
+        <textarea name="text"  cols="30" rows="10"></textarea>
+        <br>
+        <select name="voiceSelect">
+            <option value ="en-IN-Standard-C">Indian Male</option>
+            <option value ="en-AU-Wavenet-C">Australian Female</option>
+            <option value="en-GB-Standard-B">British Male</option>
+            <option value="en-US-Standard-B">US Male</option>
+        </select>
+        <br>
+        <br>
+        <p1>Speed</p1>
+        <textarea name="speed" cols="4" rows="1">1</textarea>
+        <br>
+        <p1>Pitch</p1>
+        <textarea name="pitch" cols="4" rows="1">0</textarea>
+        <input type="submit" value="Convert to Mp3"/>
+    </form>
+</div>
