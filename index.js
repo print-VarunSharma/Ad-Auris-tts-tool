@@ -1,8 +1,10 @@
-const express = require('express')
-const bodyparser = require('body-parser')
-const app = express()
+const express = require('express');
+const bodyparser = require('body-parser');
+const app = express();
 
 const textToSpeech = require('@google-cloud/text-to-speech');
+
+
 
 // Pass credentials JSON object into client (For production use ENV Vars)
 const client = new textToSpeech.TextToSpeechClient({
@@ -22,24 +24,34 @@ const client = new textToSpeech.TextToSpeechClient({
 });
 const fs = require('fs');
 const util = require('util');
+const { pathToFileURL } = require('url');
+const http = require('http');
 
-app.use(bodyparser.json())
-app.use(bodyparser.urlencoded({ extended: true }))
+app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-app.set('view engine','ejs')
+app.set('view engine','ejs');
 
 // Home View
 app.get('/', (req, res) => {
-    res.render('index')
+    res.render('index');
 })
 
 // TTS Function View
 app.post('/convertText', (req, res) => {
-    res.render('index')
-    convertTextToSpeech(req, res);
+    res.render('index');
+    convertTextToSpeech(req, res)
+    
 })
 
 
+// app.get('/convertText', (req, res) => {
+//     res.render('index');
+//     res.download(path, fileName, (err) => {
+//         console.log(err);
+//     });
+    
+// })
 async function convertTextToSpeech(req, res) {
     // Get language code
     try {
@@ -55,30 +67,33 @@ async function convertTextToSpeech(req, res) {
       // Select the language and SSML voice gender (optional)
       voice: {languageCode: ['en-US'], name: voiceSelected.toString()},
       // select the type of audio encoding
-      audioConfig: {audioEncoding: 'MP3', pitch: req.body.pitch, speakingRate: req.body.speed},
+      audioConfig: {audioEncoding: 'LINEAR16', pitch: req.body.pitch, speakingRate: req.body.speed},
     };
   
     console.log("request " + JSON.stringify(request));
 
-    const fileName = req.body.fileName + '.mp3';
+    const fileName = req.body.fileName.toLowerCase() + '.wav';
 
     // Performs the text-to-speech request
     const [response] = await client.synthesizeSpeech(request);
-    const writeFile = util.promisify(fs.writeFile);
-    await writeFile(fileName.toString(), response.audioContent, 'binary')
+    const writeFile = util.promisify(fs.createWriteStream);
+    await writeFile(fileName, response.audioContent, 'binary')
     .then(() => {
-        res.download(writeFile);
-        console.log('Audio saved to file: ' + fileName.toString());
-        return;
+        console.log('Audio saved to file: ' + fileName);
+        console.log(fileName);
+        res.download(fileName);
+        res.redirect('/');
     })
     .catch((error) => {
         console.error(error);
+        res.sendStatus(400);
     });
 }// close try
 catch (error) {
     console.error(error);
   } // close catch
 }
+
 
 const PORT = process.env.PORT || 80
 app.listen(PORT, function () {

@@ -28,3 +28,4 @@ yarn-error.log*
 # Micellaneous
 /index1.ejs
 /.mp3
+/.sparecode.js
