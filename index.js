@@ -78,9 +78,9 @@ async function convertTextToSpeech(req, res) {
     const [response] = await client.synthesizeSpeech(request);
     const writeFile = util.promisify(fs.createWriteStream);
     await writeFile(fileName, response.audioContent, 'binary')
+    writeFile.save(fileName)
     .then(() => {
         console.log('Audio saved to file: ' + fileName);
-        console.log(fileName);
         res.download(fileName);
         res.redirect('/');
     })
