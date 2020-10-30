@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script src="https://unpkg.com/vue@2.2.6/dist/vue.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+<div class="container m-3" id="app">
+<h2>Speech synthesis demo</h2>
+<h4>Press synthesize and play to hear</h4>
+<audio :src="audio" ref="audio" controls autoplay>
+</audio>
+<div class="form-group">
+    <label for="text">Text to synthesize:</label>
+    <input type="text" class="form-control" v-model="synthesisText" placeholder="Enter text" id="text">
+</div>
+<div>
+    <button @click="downloadAudio">Synthesize and play</button>
+</div>
+</div>
+
+<script>
+
+    new Vue({
+        el: "#app",
+        data: {
+            audio: null,
+            synthesisText: "Gatsby believed in the green light, the orgiastic future that year by year recedes before us."
+        },
+        methods: {
+            downloadAudio() {
+                this.audio = "/download-audio?textToSynthesize=" + encodeURIComponent(this.synthesisText);
+                this.$refs.audio.load();
+                this.$refs.audio.play();
+            }
+        }
+    });
+
+</script>
+</body>
+</html> 

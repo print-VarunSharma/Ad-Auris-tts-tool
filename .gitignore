@@ -29,3 +29,6 @@ yarn-error.log*
 /index1.ejs
 /.mp3
 /.sparecode.js
+./ttstest.js
+./ttstest.ejs
+

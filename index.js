@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyparser = require('body-parser');
 const app = express();
+const stream = require("stream");
+
 
 const textToSpeech = require('@google-cloud/text-to-speech');
 
@@ -24,8 +26,6 @@ const client = new textToSpeech.TextToSpeechClient({
 });
 const fs = require('fs');
 const util = require('util');
-const { pathToFileURL } = require('url');
-const http = require('http');
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
@@ -34,15 +34,59 @@ app.set('view engine','ejs');
 
 // Home View
 app.get('/', (req, res) => {
-    res.render('index');
+    res.render('index.ejs');
 })
 
 // TTS Function View
 app.post('/convertText', (req, res) => {
-    res.render('index');
-    convertTextToSpeech(req, res)
+    res.render('index.ejs');
+        // Get language code
+        try {
+        const voiceSelected = req.body.voiceSelect;
+        console.log(voiceSelected)
     
-})
+        // The text to synthesize
+        const text = req.body.text;
+      
+        // Construct the request
+        const request = {
+          input: {text: text},
+          // Select the language and SSML voice gender (optional)
+          voice: {languageCode: ['en-US'], name: voiceSelected.toString()},
+          // select the type of audio encoding
+          audioConfig: {audioEncoding: 'LINEAR16', pitch: req.body.pitch, speakingRate: req.body.speed},
+        };
+      
+        console.log("request " + JSON.stringify(request));
+    
+        const fileName = req.body.fileName.toLowerCase() + '.wav';
+    
+        // Performs the text-to-speech request
+        const response = client.synthesizeSpeech(request);
+        const writeFile = util.promisify(fs.writeFile);
+        writeFile(fileName, response.audioContent, 'binary')
+        
+        const readStream = new stream.PassThrough();
+        readStream.end(response.audioContent);
+        res.set("Content-disposition", 'attachment; filename=' + 'audio.wav');
+        res.set("Content-Type", "audio/mpeg");
+        readStream.pipe(res)
+        .then(() => {
+            console.log('Audio saved to file: ' + fileName);
+            res.download(fileName)
+            res.redirect('/');
+        })
+        .catch((error) => {
+            console.error(error);
+            res.sendStatus(400);
+        });
+    }// close try
+    catch (error) {
+        console.error(error);
+      } // close catch
+    
+    
+});
 
 
 // app.get('/convertText', (req, res) => {
@@ -52,48 +96,25 @@ app.post('/convertText', (req, res) => {
 //     });
     
 // })
-async function convertTextToSpeech(req, res) {
-    // Get language code
-    try {
-    const voiceSelected = req.body.voiceSelect;
-    console.log(voiceSelected)
 
-    // The text to synthesize
-    const text = req.body.text;
-  
-    // Construct the request
-    const request = {
-      input: {text: text},
-      // Select the language and SSML voice gender (optional)
-      voice: {languageCode: ['en-US'], name: voiceSelected.toString()},
-      // select the type of audio encoding
-      audioConfig: {audioEncoding: 'LINEAR16', pitch: req.body.pitch, speakingRate: req.body.speed},
-    };
-  
-    console.log("request " + JSON.stringify(request));
+// GTTS View
+const gtts = require('gtts.js').gTTS
+app.get('/gtts-tool', (req, res) => {
+    res.render('gtts-tool')
+})
 
-    const fileName = req.body.fileName.toLowerCase() + '.wav';
-
-    // Performs the text-to-speech request
-    const [response] = await client.synthesizeSpeech(request);
-    const writeFile = util.promisify(fs.createWriteStream);
-    await writeFile(fileName, response.audioContent, 'binary')
-    writeFile.save(fileName)
-    .then(() => {
-        console.log('Audio saved to file: ' + fileName);
-        res.download(fileName);
-        res.redirect('/');
+// GTTS Form POST
+app.post('/convert-gtts-tool', (req, res) => {
+    res.render('gtts-tool')
+    var text = req.body.text
+    const speech = new gtts(text)
+    speech.save("output.mp3")
+        .then(function () {
+          res.download("output.mp3")
+        }).catch(function (err) {
+        
     })
-    .catch((error) => {
-        console.error(error);
-        res.sendStatus(400);
-    });
-}// close try
-catch (error) {
-    console.error(error);
-  } // close catch
-}
-
+})
 
 const PORT = process.env.PORT || 80
 app.listen(PORT, function () {
