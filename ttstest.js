@@ -1,5 +1,4 @@
 const express = require("express");
-const port = 5500;
 const app = express();
 const stream = require("stream");
 const textToSpeech = require('@google-cloud/text-to-speech');
@@ -45,5 +44,7 @@ app.get('/download-audio', async (req, res) => {
     readStream.pipe(res);
 });
 
-app.listen(port);
-console.log(`Serving at http://localhost:${port}`);
+const PORT = process.env.PORT || 80
+app.listen(PORT, function () {
+    console.log("Server is listening ${PORT}")
+});

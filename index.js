@@ -107,12 +107,12 @@ app.post('/convertText', (req, res) => {
 // GTTS View
 const gtts = require('gtts.js').gTTS
 app.get('/gtts-tool', (req, res) => {
-    res.render('gtts-tool')
+    res.render('gtts-tool.ejs')
 })
 
 // GTTS Form POST
 app.post('/convert-gtts-tool', (req, res) => {
-    res.render('gtts-tool')
+    res.render('gtts-tool.ejs')
     var text = req.body.text
     const speech = new gtts(text)
     speech.save("output.mp3")
@@ -121,7 +121,13 @@ app.post('/convert-gtts-tool', (req, res) => {
         }).catch(function (err) {
         
     })
-})
+});
+
+// TTS Test View (Vue.js Tool)
+app.get('/ttstest', (req, res) => {
+    res.render('ttstest.ejs')
+});
+
 const PORT = process.env.PORT || 80
 app.listen(PORT, function () {
     console.log("Server is listening ${PORT}")
