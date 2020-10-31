@@ -39,7 +39,6 @@ app.get('/', (req, res) => {
 
 // TTS Function View
 app.post('/convertText', (req, res) => {
-    res.render('index.ejs');
         // Get language code
         try {
         const voiceSelected = req.body.voiceSelect;
@@ -115,7 +114,6 @@ app.post('/convert-gtts-tool', (req, res) => {
         
     })
 })
-
 const PORT = process.env.PORT || 80
 app.listen(PORT, function () {
     console.log("Server is listening ${PORT}")
