@@ -37,6 +37,7 @@ app.get('/', (req, res) => {
     res.render('index.ejs');
 })
 
+
 // TTS Function View
 app.post('/convertText', (req, res) => {
         // Get language code
@@ -70,9 +71,16 @@ app.post('/convertText', (req, res) => {
         res.set("Content-disposition", 'attachment; filename=' + fileName);
         res.set("Content-Type", "audio/mpeg");
         readStream.pipe(res)
+        var path = require('path');
+        var filepath = path.join(__dirname, fileName);
+                
+        writeFile.save(filepath, function (err, result) {
+        if(err) { throw new Error(err) }
+        console.log('Success! Open ' + fileName)
+        })
         .then(() => {
             console.log('Audio saved to file: ' + fileName);
-            res.download(fileName)
+            res.download(filepath, fileName)
             res.redirect('/');
         })
         .catch((error) => {
