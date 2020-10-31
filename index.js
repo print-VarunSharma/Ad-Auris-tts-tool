@@ -67,7 +67,7 @@ app.post('/convertText', (req, res) => {
         
         const readStream = new stream.PassThrough();
         readStream.end(response.audioContent);
-        res.set("Content-disposition", 'attachment; filename=' + 'audio.wav');
+        res.set("Content-disposition", 'attachment; filename=' + fileName);
         res.set("Content-Type", "audio/mpeg");
         readStream.pipe(res)
         .then(() => {
