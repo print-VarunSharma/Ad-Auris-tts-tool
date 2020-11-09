@@ -42,13 +42,6 @@ app.get('/', (req, res) => {
     res.render('index.ejs');
 })
 
-<<<<<<< HEAD
-
-// TTS Function View
-app.post('/convertText', (req, res) => {
-        // Get language code
-        try {
-=======
 //meat of the converText post endpoint
 
 
@@ -56,7 +49,6 @@ async function meat(req, res){
     
     // Get language code
     try {
->>>>>>> 707be101081c2f7c7f0cbda19d7b96276b741062
         const voiceSelected = req.body.voiceSelect;
         console.log(`${voiceSelected} this is voice selected`)
     
@@ -77,24 +69,6 @@ async function meat(req, res){
         const fileName = req.body.fileName.toLowerCase() + '.wav';
 
         
-<<<<<<< HEAD
-        const readStream = new stream.PassThrough();
-        readStream.end(response.audioContent);
-        res.set("Content-disposition", 'attachment; filename=' + fileName);
-        res.set("Content-Type", "audio/mpeg");
-        readStream.pipe(res)
-        var path = require('path');
-        var filepath = path.join(__dirname, fileName);
-                
-        writeFile.save(filepath, function (err, result) {
-        if(err) { throw new Error(err) }
-        console.log('Success! Open ' + fileName)
-        })
-        .then(() => {
-            console.log('Audio saved to file: ' + fileName);
-            res.download(filepath, fileName)
-            res.redirect('/');
-=======
 
 
         const response_synth_speech = await client.synthesizeSpeech(request);
@@ -112,7 +86,6 @@ async function meat(req, res){
         res.writeHead(200, {
             "Content-Type" : "application/octet-stream",
             "Content-Disposition": "attachment; filename=" + fileName
->>>>>>> 707be101081c2f7c7f0cbda19d7b96276b741062
         })
         fs.createReadStream(filePath).pipe(res)
 
@@ -154,12 +127,12 @@ app.post('/convertText', (req, res) => {
 // GTTS View
 const gtts = require('gtts.js').gTTS
 app.get('/gtts-tool', (req, res) => {
-    res.render('gtts-tool.ejs')
+    res.render('gtts-tool')
 })
 
 // GTTS Form POST
 app.post('/convert-gtts-tool', (req, res) => {
-    res.render('gtts-tool.ejs')
+    res.render('gtts-tool')
     var text = req.body.text
     const speech = new gtts(text)
     speech.save("output.mp3")
@@ -168,19 +141,8 @@ app.post('/convert-gtts-tool', (req, res) => {
         }).catch(function (err) {
         
     })
-<<<<<<< HEAD
-});
-
-// TTS Test View (Vue.js Tool)
-app.get('/ttstest', (req, res) => {
-    res.render('ttstest.ejs')
-});
-
-const PORT = process.env.PORT || 80
-=======
 })
 const PORT = process.env.PORT || 8000
->>>>>>> 707be101081c2f7c7f0cbda19d7b96276b741062
 app.listen(PORT, function () {
     console.log(`Server is listening on port ${PORT}`)
 });
