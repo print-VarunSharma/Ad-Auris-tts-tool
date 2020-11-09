@@ -2,11 +2,11 @@ const express = require('express');
 const bodyparser = require('body-parser');
 const app = express();
 const stream = require("stream");
-const path = require('path');
 
-require('dotenv').config()
 
 const textToSpeech = require('@google-cloud/text-to-speech');
+
+
 
 // Pass credentials JSON object into client (For production use ENV Vars)
 const client = new textToSpeech.TextToSpeechClient({
@@ -27,11 +27,6 @@ const client = new textToSpeech.TextToSpeechClient({
 const fs = require('fs');
 const util = require('util');
 
-console.log(process.env.TYPE)
-console.log(process.env.PROJECT_ID)
-console.log(process.env.CLIENT_EMAIL)
-console.log(process.env.AUTH_URI)
-
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
@@ -42,42 +37,35 @@ app.get('/', (req, res) => {
     res.render('index.ejs');
 })
 
-<<<<<<< HEAD
 
 // TTS Function View
 app.post('/convertText', (req, res) => {
         // Get language code
         try {
-=======
-//meat of the converText post endpoint
-
-
-async function meat(req, res){
-    
-    // Get language code
-    try {
->>>>>>> 707be101081c2f7c7f0cbda19d7b96276b741062
         const voiceSelected = req.body.voiceSelect;
-        console.log(`${voiceSelected} this is voice selected`)
+        console.log(voiceSelected)
     
         // The text to synthesize
         const text = req.body.text;
-        
+      
         // Construct the request
         const request = {
-            input: {text: text},
-            // Select the language and SSML voice gender (optional)
-            voice: {languageCode: ['en-US'], name: voiceSelected.toString()},
-            // select the type of audio encoding
-            audioConfig: {audioEncoding: 'LINEAR16', pitch: req.body.pitch, speakingRate: req.body.speed},
+          input: {text: text},
+          // Select the language and SSML voice gender (optional)
+          voice: {languageCode: ['en-US'], name: voiceSelected.toString()},
+          // select the type of audio encoding
+          audioConfig: {audioEncoding: 'LINEAR16', pitch: req.body.pitch, speakingRate: req.body.speed},
         };
-        
+      
         console.log("request " + JSON.stringify(request));
     
         const fileName = req.body.fileName.toLowerCase() + '.wav';
-
+    
+        // Performs the text-to-speech request
+        const response = client.synthesizeSpeech(request);
+        const writeFile = util.promisify(fs.writeFile);
+        writeFile(fileName, response.audioContent, 'binary')
         
-<<<<<<< HEAD
         const readStream = new stream.PassThrough();
         readStream.end(response.audioContent);
         res.set("Content-disposition", 'attachment; filename=' + fileName);
@@ -94,52 +82,17 @@ async function meat(req, res){
             console.log('Audio saved to file: ' + fileName);
             res.download(filepath, fileName)
             res.redirect('/');
-=======
-
-
-        const response_synth_speech = await client.synthesizeSpeech(request);
-        const writeFile = util.promisify(fs.writeFile);
-        console.log(response_synth_speech)
-
-        //TODO: 
-            // internally file names should be randomlly generated so that (hash function?)
-            // no accidental rewrite occurs
-
-        writeFile(fileName, response_synth_speech[0].audioContent, 'binary')
-
-        const filePath = path.join(__dirname, fileName);
-        // should have error handling with downloading the file so response_synth_speech doesn't malform
-        res.writeHead(200, {
-            "Content-Type" : "application/octet-stream",
-            "Content-Disposition": "attachment; filename=" + fileName
->>>>>>> 707be101081c2f7c7f0cbda19d7b96276b741062
         })
-        fs.createReadStream(filePath).pipe(res)
-
-        // const readStream = new stream.PassThrough();
-        // readStream.end(response_synth_speech.audioContent);
-        // res.set("Content-disposition", 'attachment; filename=' + 'audio.wav');
-        // res.set("Content-Type", "audio/mpeg");
-
-        // readStream.pipe(res)
-        // .then(() => {
-        //     console.log('Audio saved to file: ' + fileName);
-        //     res.download(fileName)
-        //     res.redirect('/');
-        // })
-        // .catch((error) => {
-        //     console.error(error);
-        //     res.sendStatus(400);
-        // });
+        .catch((error) => {
+            console.error(error);
+            res.sendStatus(400);
+        });
     }// close try
     catch (error) {
         console.error(error);
-        } // close catch  
-}
-
-// TTS Function View
-app.post('/convertText', (req, res) => {
-    meat(req, res)
+      } // close catch
+    
+    
 });
 
 
@@ -168,7 +121,6 @@ app.post('/convert-gtts-tool', (req, res) => {
         }).catch(function (err) {
         
     })
-<<<<<<< HEAD
 });
 
 // TTS Test View (Vue.js Tool)
@@ -177,10 +129,6 @@ app.get('/ttstest', (req, res) => {
 });
 
 const PORT = process.env.PORT || 80
-=======
-})
-const PORT = process.env.PORT || 8000
->>>>>>> 707be101081c2f7c7f0cbda19d7b96276b741062
 app.listen(PORT, function () {
-    console.log(`Server is listening on port ${PORT}`)
+    console.log("Server is listening ${PORT}")
 });
