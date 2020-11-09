@@ -49,7 +49,11 @@ async function meat(req, res){
     
     // Get language code
     try {
-        const voiceSelected = req.body.voiceSelect;
+        let voiceSelected = req.body.voiceSelect;
+        if (voiceSelected == "custom"){
+        voiceSelected = req.body.customVoiceSelect;
+        }
+
         console.log(`${voiceSelected} this is voice selected`)
     
         // The text to synthesize
