@@ -2,13 +2,11 @@ const express = require('express');
 const bodyparser = require('body-parser');
 const app = express();
 const stream = require("stream");
+const path = require('path');
 
 require('dotenv').config()
 
-
 const textToSpeech = require('@google-cloud/text-to-speech');
-
-
 
 // Pass credentials JSON object into client (For production use ENV Vars)
 const client = new textToSpeech.TextToSpeechClient({
@@ -49,60 +47,67 @@ app.get('/', (req, res) => {
 
 async function meat(req, res){
     
-        // Get language code
-        try {
-            const voiceSelected = req.body.voiceSelect;
-            console.log(`${voiceSelected} this is voice selected`)
+    // Get language code
+    try {
+        const voiceSelected = req.body.voiceSelect;
+        console.log(`${voiceSelected} this is voice selected`)
+    
+        // The text to synthesize
+        const text = req.body.text;
         
-            // The text to synthesize
-            const text = req.body.text;
-          
-            // Construct the request
-            const request = {
-              input: {text: text},
-              // Select the language and SSML voice gender (optional)
-              voice: {languageCode: ['en-US'], name: voiceSelected.toString()},
-              // select the type of audio encoding
-              audioConfig: {audioEncoding: 'LINEAR16', pitch: req.body.pitch, speakingRate: req.body.speed},
-            };
-          
-            console.log("request " + JSON.stringify(request));
+        // Construct the request
+        const request = {
+            input: {text: text},
+            // Select the language and SSML voice gender (optional)
+            voice: {languageCode: ['en-US'], name: voiceSelected.toString()},
+            // select the type of audio encoding
+            audioConfig: {audioEncoding: 'LINEAR16', pitch: req.body.pitch, speakingRate: req.body.speed},
+        };
         
-            const fileName = req.body.fileName.toLowerCase() + '.wav';
-        
-            // Performs the text-to-speech request
+        console.log("request " + JSON.stringify(request));
     
-            //const response = something(request, fileName)
-            //console.log(`response is ${response}`)
-    
-    
-            const response = await client.synthesizeSpeech(request);
-            const writeFile = util.promisify(fs.writeFile);
-            console.log(response)
-            writeFile(fileName, response[0].audioContent, 'binary')
-    
-            const readStream = new stream.PassThrough();
-            readStream.end(response.audioContent);
-            res.set("Content-disposition", 'attachment; filename=' + 'audio.wav');
-            res.set("Content-Type", "audio/mpeg");
+        const fileName = req.body.fileName.toLowerCase() + '.wav';
 
-            readStream.pipe(res)
-            .then(() => {
-                console.log('Audio saved to file: ' + fileName);
-                res.download(fileName)
-                res.redirect('/');
-            })
-            .catch((error) => {
-                console.error(error);
-                res.sendStatus(400);
-            });
-        }// close try
-    
-    
-    
-        catch (error) {
-            console.error(error);
-          } // close catch  
+        
+
+
+        const response_synth_speech = await client.synthesizeSpeech(request);
+        const writeFile = util.promisify(fs.writeFile);
+        console.log(response_synth_speech)
+
+        //TODO: 
+            // internally file names should be randomlly generated so that (hash function?)
+            // no accidental rewrite occurs
+
+        writeFile(fileName, response_synth_speech[0].audioContent, 'binary')
+
+        const filePath = path.join(__dirname, fileName);
+        // should have error handling with downloading the file so response_synth_speech doesn't malform
+        res.writeHead(200, {
+            "Content-Type" : "application/octet-stream",
+            "Content-Disposition": "attachment; filename=" + fileName
+        })
+        fs.createReadStream(filePath).pipe(res)
+
+        // const readStream = new stream.PassThrough();
+        // readStream.end(response_synth_speech.audioContent);
+        // res.set("Content-disposition", 'attachment; filename=' + 'audio.wav');
+        // res.set("Content-Type", "audio/mpeg");
+
+        // readStream.pipe(res)
+        // .then(() => {
+        //     console.log('Audio saved to file: ' + fileName);
+        //     res.download(fileName)
+        //     res.redirect('/');
+        // })
+        // .catch((error) => {
+        //     console.error(error);
+        //     res.sendStatus(400);
+        // });
+    }// close try
+    catch (error) {
+        console.error(error);
+        } // close catch  
 }
 
 // TTS Function View
