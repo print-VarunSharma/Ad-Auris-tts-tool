@@ -44,16 +44,10 @@ app.get('/', (req, res) => {
     res.render('index.ejs');
 })
 
+//meat of the converText post endpoint
 
-// async func
-async function something(request, fileName){
-    const [response] = await client.synthesizeSpeech(request);
-    const writeFile = util.promisify(fs.writeFile);
-    await writeFile(fileName, response.audioContent, 'binary')
-    return response;
-}
 
-async function something1(req, res){
+async function meat(req, res){
     
         // Get language code
         try {
@@ -113,7 +107,7 @@ async function something1(req, res){
 
 // TTS Function View
 app.post('/convertText', (req, res) => {
-    something1(req, res)
+    meat(req, res)
 });
 
 
