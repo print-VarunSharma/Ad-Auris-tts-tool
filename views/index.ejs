@@ -37,10 +37,10 @@
                 </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="gtts-tool.ejs">GTTS-Tool</a>
+            <a class="nav-link" href="https://app.ssml-editor.com/conversations/2240" target="_blank">Interactive SSML Editor</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="gtts-tool.ejs">ttstest</a>
+            <a class="nav-link" href="https://ssml-editor.azurewebsites.net/" target="_blank">Simple SSML Editor</a>
           </li>
           
         </ul>
@@ -60,12 +60,12 @@
   <!-- Page Content -->
   <section class="py-5">
     <div class="container">
-      <h2 class="font-weight-light">Rapid TTS</h2>
-      <p>Edit the your text as you desire. Ensure the speed and pitch only use number characters. </p>
+      <h2 class="font-weight-light"> Google Cloud TTS and SSML</h2>
+      <p>Edit the your text as you desire. Ensure the speed and pitch only use number characters. Leave blank if you choose SSML</p>
     </div>
  
 
-    <form method="post" action="/convertText" class="form-group shadow-textarea">
+    <form method="post" action="/convertSSML" class="form-group shadow-textarea">
         <div class="form-group">
           <label for="exampleFormControlInput1" >File Name</label>
           <input name="fileName" type="text" class="form-control" id="exampleFormControlInput1" placeholder="Substack-Emily-55">
@@ -113,6 +113,7 @@
             <input type="text" class="form-control" name="pitch" aria-label="Small" aria-describedby="inputGroup-sizing-sm">
           </div>
           <input type="submit" class="btn btn-primary mb-2"  value="Convert to Mp3"/>
+          <input type="submit" class="btn btn-primary mb-2"  value="Convert to ssml"/>
       </form>
      
     

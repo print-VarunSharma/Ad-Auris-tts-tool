@@ -44,6 +44,7 @@ app.get('/', (req, res) => {
 
 //meat of the converText post endpoint
 
+// --------------------------------- Normal TTS POST ----------------------------------------------------------------------------------
 
 async function meat(req, res){
     
@@ -112,21 +113,68 @@ async function meat(req, res){
     catch (error) {
         console.error(error);
         } // close catch  
-}
+} // --------------------------------- Normal TTS POST END ----------------------------------------------------------------------------------
 
+
+
+// --------------------------------- SSML POST ----------------------------------------------------------------------------------
+async function ssmlText(req, res){
+    
+    // Get language code
+    try {
+        let voiceSelected = req.body.voiceSelect;
+        if (voiceSelected == "custom"){
+        voiceSelected = req.body.customVoiceSelect;
+        }
+
+        console.log(`${voiceSelected} this is voice selected`)
+    
+        // The text to synthesize
+        const text = req.body.text;
+        
+        // Construct the request
+        const request = {
+            input: {ssml: text},
+            // Select the language and SSML voice gender (optional)
+            voice: {languageCode: ['en-US'], name: voiceSelected.toString()},
+            // select the type of audio encoding
+            audioConfig: {audioEncoding: 'LINEAR16'},
+        };
+        
+        console.log("request " + JSON.stringify(request));
+    
+        const fileName = req.body.fileName.toLowerCase() + '.wav';
+
+        
+
+
+        const response_ssml_speech = await client.synthesizeSpeech(request);
+        const writeFile = util.promisify(fs.writeFile);
+        console.log(response_ssml_speech)
+
+        writeFile(fileName, response_ssml_speech[0].audioContent, 'binary')
+
+        const filePath = path.join(__dirname, fileName);
+        // should have error handling with downloading the file so response_ssml_speech doesn't malform
+        res.writeHead(200, {
+            "Content-Type" : "application/octet-stream",
+            "Content-Disposition": "attachment; filename=" + fileName
+        })
+        fs.createReadStream(filePath).pipe(res)
+    }// close try
+    catch (error) {
+        console.error(error);
+        } // close catch  
+}
+// ----------------------- SSML POST END-------------------------------
 // TTS Function View
 app.post('/convertText', (req, res) => {
     meat(req, res)
 });
 
-
-// app.get('/convertText', (req, res) => {
-//     res.render('index');
-//     res.download(path, fileName, (err) => {
-//         console.log(err);
-//     });
-    
-// })
+app.post('/convertSSML', (req, res) => {
+    ssmlText(req, res)
+});
 
 // GTTS View
 const gtts = require('gtts.js').gTTS
